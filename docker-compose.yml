@@ -1,13 +1,18 @@
 version: '3.8'
 services:
   app:
-    image: php:8.1-fpm
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: laravel_app
     working_dir: /var/www
     volumes:
       - .:/var/www
     networks:
       - laravel
+    ports:
+      - "9000:9000" # Mapeando porta do PHP-FPM para o host, se necessário
+
 
   webserver:
     image: nginx:alpine
@@ -19,15 +24,17 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
       - laravel
+    depends_on:
+      - app # Certifique-se de que o Nginx depende do app
 
   db:
     image: mysql:5.7
     container_name: laravel_db
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: secret
+      MYSQL_DATABASE: api_laravel
+      MYSQL_USER: luana
+      MYSQL_PASSWORD: alohomora
     ports:
       - "3306:3306"
     networks:
