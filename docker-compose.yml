@@ -1,24 +1,36 @@
 version: '3.8'
+
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: laravel_app
-    working_dir: /var/www
     volumes:
       - .:/var/www
+      - ./storage:/var/www/storage
+      - ./public:/var/www/public
+    ports:
+      - "9000:9000" # Porta do PHP-FPM
+    container_name: laravel_app
     networks:
       - laravel
-    ports:
-      - "9000:9000" # Mapeando porta do PHP-FPM para o host, se necessário
-
+    environment:
+      APP_KEY: ${APP_KEY} # Certifique-se de definir esta variável de ambiente no seu arquivo .env
+      APP_ENV: local
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: api_laravel
+      DB_USERNAME: luana
+      DB_PASSWORD: alohomora
+    depends_on:
+      - db
 
   webserver:
     image: nginx:alpine
     container_name: laravel_webserver
     ports:
-      - "8080:80"
+      - "8080:80" # Porta do Nginx
     volumes:
       - .:/var/www
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
@@ -36,9 +48,14 @@ services:
       MYSQL_USER: luana
       MYSQL_PASSWORD: alohomora
     ports:
-      - "3306:3306"
+      - "3307:3306" # Porta do MySQL
+    volumes:
+      - db_data:/var/lib/mysql
     networks:
       - laravel
+
+volumes:
+  db_data:
 
 networks:
   laravel:

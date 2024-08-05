@@ -1,29 +1,61 @@
-# Use a imagem base php:8.1-fpm
-FROM php:8.1-fpm
+FROM node:18 AS build-stage
 
-# Instale pacotes do sistema necessários e extensões do PHP
-RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    zip \
-    libzip-dev \
-    libpng-dev \
-    && docker-php-ext-install pdo pdo_mysql zip
-
-# Instale o Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Defina o diretório de trabalho
 WORKDIR /var/www
 
-# Copie todos os arquivos do projeto para o contêiner antes de instalar as dependências do Composer
+COPY package.json ./
+
+RUN npm install
+
 COPY . .
 
-# Instale as dependências do Composer (defina a variável para permitir superuser)
-RUN COMPOSER_ALLOW_SUPERUSER=1 composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN npm run build
 
-# Permissões (se necessário)
-RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www
+# ---------------------------------------------------------------
 
-# Exponha a porta (não necessário se não houver necessidade de acesso direto)
+FROM php:8.2-fpm
+
+# Instala dependências do sistema
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    zip \
+    unzip \
+    git \
+    curl \
+    libxml2-dev
+
+# Instala extensões do PHP
+RUN docker-php-ext-install pdo pdo_mysql
+
+# Instala o Composer
+COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
+
+# Copia os arquivos do projeto para o contêiner
+COPY . /var/www
+
+# Copia o build do Vite
+COPY --from=build-stage /var/www/public/build /var/www/public/build
+
+# Define o diretório de trabalho
+WORKDIR /var/www
+
+# Instala as dependências do projeto Laravel
+RUN composer install --no-interaction --optimize-autoloader --no-dev
+
+# Ajusta permissões para diretórios críticos
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
+# Gera chave de aplicação
+RUN php artisan key:generate
+
+# Limpa o cache do Laravel
+RUN php artisan config:cache
+
+# Expõe a porta para o contêiner
 EXPOSE 9000
+
+# Comando para iniciar o PHP-FPM
+CMD ["php-fpm"]
