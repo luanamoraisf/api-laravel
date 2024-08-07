@@ -27,7 +27,16 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $title = $request->title;
+        $author = $request->author;
+        $summary = $request->summary;
+        $summaryLimit = $request->validate(['summary' => ['require', 'max:200'],]);
+        $gender = $request->gender;
+        $release_year = $request->release_year;
+        
+        $book = new Book($summaryLimit);
+        $book->save();
+
     }
 
     /**
