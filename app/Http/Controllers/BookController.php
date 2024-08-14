@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Auth\Events\Validated;
 use App\Models\Book;
 
 class BookController extends Controller
@@ -29,16 +28,24 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        $title = $request->title;
-        $author = $request->author;
-        $summary = $request->summary;
-        $summaryLimit = $request->validate(['summary' => ['required', 'max:200'],]);
-        $gender = $request->gender;
-        $release_year = $request->release_year;
+        $dataLimit = $request->valite(
+            [
+                'title' => 'required'|'max:150',
+                'author' => 'required'|'max:100',
+                'summary' => 'required'|'max:255',
+            ]); 
+
+
+        $book = new Book();
+        $book->title = $dataLimit['title'];
+        $book->author = $dataLimit['author'];
+        $book->summary = $dataLimit['summary'];
+        $book->gender = $request->gender;
+        $book->release_year = $request->release_year;
         
-        $book = new Book($summaryLimit);
         $book->save();
 
+        return response()->json(['message' => 'Livro cadastrado!'], 200);
     }
 
     /**
