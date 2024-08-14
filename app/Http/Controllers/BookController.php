@@ -28,8 +28,7 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        $dataLimit = $request->valite(
-            [
+        $dataLimit = $request->validate([
                 'title' => 'required'|'max:150',
                 'author' => 'required'|'max:100',
                 'summary' => 'required'|'max:255',
