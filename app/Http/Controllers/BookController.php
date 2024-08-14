@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Auth\Events\Validated;
+use App\Models\Book;
 
 class BookController extends Controller
 {
@@ -30,7 +32,7 @@ class BookController extends Controller
         $title = $request->title;
         $author = $request->author;
         $summary = $request->summary;
-        $summaryLimit = $request->validate(['summary' => ['require', 'max:200'],]);
+        $summaryLimit = $request->validate(['summary' => ['required', 'max:200'],]);
         $gender = $request->gender;
         $release_year = $request->release_year;
         
