@@ -27,11 +27,11 @@ class BookController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
+    {        
         $dataLimit = $request->validate([
-                'title' => 'required'|'max:150',
-                'author' => 'required'|'max:100',
-                'summary' => 'required'|'max:255',
+                'title' => 'required|max:150',
+                'author' => 'required|max:100',
+                'summary' => 'required|max:255',
             ]); 
 
 
