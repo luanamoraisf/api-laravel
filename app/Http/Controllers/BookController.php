@@ -12,7 +12,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        //
+        $book = Book::orderBy('created_at', 'asc')->get();
     }
 
     /**
@@ -50,9 +50,11 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $book = Book::findOrFail($id);
+        return reponse()->json($book);
+
     }
 
     /**
