@@ -12,7 +12,8 @@ class BookController extends Controller
      */
     public function index()
     {
-        $book = Book::orderBy('created_at', 'asc')->get();
+        $book = Book::orderBy('created_at', 'asc')->paginate(10);
+        return response()->json($book);
     }
 
     /**
@@ -53,7 +54,7 @@ class BookController extends Controller
     public function show($id)
     {
         $book = Book::findOrFail($id);
-        return reponse()->json($book);
+        return response()->json($book->only(['title', 'author', 'summary', 'gender', 'release_year']));
 
     }
 
