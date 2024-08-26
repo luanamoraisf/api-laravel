@@ -32,7 +32,7 @@ class BookController extends Controller
         $dataLimit = $request->validate([
                 'title' => 'required|max:150',
                 'author' => 'required|max:100',
-                'summary' => 'required|max:255',
+                'summary' => 'required|max:500',
             ]); 
 
 
@@ -71,14 +71,22 @@ class BookController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $book = Book::findOrFail($id)->update([
+            'title' => $request->title,
+            'author' => $request->author,
+            'summary' => $request->summary,
+            'gender' => $request->gender,
+            'release_year' => $request->release_year
+        ]);
+        return response()->json(['message' => 'Livro Editado!'], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        Book::find($id)->delete();
+        return response()->json(['message' => 'Livro excluído!']);
     }
 }
