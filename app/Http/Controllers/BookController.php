@@ -17,14 +17,6 @@ class BookController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -56,14 +48,6 @@ class BookController extends Controller
         $book = Book::findOrFail($id);
         return response()->json($book->only(['title', 'author', 'summary', 'gender', 'release_year']));
 
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
     }
 
     /**
